@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From Tape to Cloud: The Story of Databases</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12103a;--bg2:#1b1858;--ink:#f1efff;--muted:#a9a5d6;--teal:#2de2c8;--amber:#ffb547;--pink:#ff5c93;--line:rgba(255,255,255,.14);--card:rgba(255,255,255,.06);
+  color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12103a;}}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f4f2ff;--bg2:#e6e2ff;--ink:#1a1747;--muted:#55509a;--teal:#007f6e;--amber:#a85f00;--pink:#c4194f;--line:rgba(26,23,71,.18);--card:rgba(26,23,71,.05);color-scheme:light;}}
+:root[data-theme="light"]{--bg:#f4f2ff;--bg2:#e6e2ff;--ink:#1a1747;--muted:#55509a;--teal:#007f6e;--amber:#a85f00;--pink:#c4194f;--line:rgba(26,23,71,.18);--card:rgba(26,23,71,.05);color-scheme:light}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:400 1.05rem/1.65 'DM Sans',system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:'Bricolage Grotesque','Segoe UI',sans-serif;line-height:1.05;letter-spacing:-.02em}
+.wrap{max-width:1040px;margin:0 auto;padding:0 1.4rem}
+
+/* hero */
+.hero{min-height:92vh;display:grid;align-items:center;background:radial-gradient(900px 500px at 80% 10%,var(--bg2),transparent 70%)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:2.5rem;align-items:center;padding-top:3rem;padding-bottom:3rem}
+.hero h1{font-size:clamp(2.8rem,8vw,6rem);font-weight:800}
+.hero h1 span{display:block;color:var(--teal)}
+.hero p{color:var(--muted);max-width:34ch;margin:1.4rem 0 2rem;font-size:1.15rem}
+.btn{display:inline-block;padding:.85rem 1.5rem;border-radius:999px;background:var(--teal);color:#07122b;font-weight:500;text-decoration:none;transition:transform .2s}
+.btn:hover{transform:translateY(-3px)}
+.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;max-width:380px;margin-left:auto;width:100%}
+.grid i{aspect-ratio:1;border-radius:4px;background:var(--card);border:1px solid var(--line);animation:wave 3.6s ease-in-out infinite}
+@keyframes wave{0%,60%,100%{background:var(--card);transform:scale(1)}30%{background:var(--teal);transform:scale(1.12)}}
+.grid i:nth-child(7n){animation-name:wave2}
+@keyframes wave2{0%,60%,100%{background:var(--card)}30%{background:var(--amber);transform:scale(1.12)}}
+.cap{text-align:right;color:var(--muted);font-size:.85rem;margin-top:.8rem}
+
+/* timeline */
+section{padding:5rem 0}
+h2{font-size:clamp(2rem,5vw,3.4rem);margin-bottom:.6rem}
+.lead{color:var(--muted);max-width:52ch;margin-bottom:3rem}
+.tl{position:relative;padding-left:2.2rem}
+.tl::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(var(--teal),var(--pink),var(--amber));transform-origin:top;transform:scaleY(var(--p,0))}
+.era{position:relative;display:grid;grid-template-columns:140px 1fr;gap:1.5rem;padding:1.4rem 0;opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.era.in{opacity:1;transform:none}
+.era::before{content:"";position:absolute;left:-2.2rem;top:2rem;width:18px;height:18px;border-radius:50%;background:var(--bg);border:3px solid var(--teal);transition:background .4s}
+.era.in::before{background:var(--teal)}
+.yr{font:800 2.2rem 'Bricolage Grotesque',sans-serif;color:var(--amber)}
+.era h3{font-size:1.5rem;margin-bottom:.4rem}
+.era p{color:var(--muted);max-width:56ch}
+.era.big h3{color:var(--teal)}
+
+/* when not */
+.when{background:var(--bg2)}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.chip{display:block;padding:1.3rem;border-radius:18px;background:var(--card);border:1.5px solid var(--line);transition:.25s}
+.chip:hover{transform:translateY(-4px)}
+.chip b{font:800 1.2rem 'Bricolage Grotesque',sans-serif;display:block;margin-bottom:.3rem}
+.chip span{color:var(--muted);font-size:.97rem}
+.chip[aria-pressed="true"]{border-color:var(--pink);background:color-mix(in srgb,var(--pink) 16%,transparent)}
+.verdict{margin-top:2rem;padding:1.4rem 1.6rem;border-radius:18px;border:1.5px dashed var(--line);min-height:5.5rem;font-size:1.1rem;transition:.3s}
+.verdict.skip{border:1.5px solid var(--pink);border-style:solid}
+.hint{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+
+/* conclusion */
+.end{text-align:center}
+.end blockquote{font:800 clamp(1.6rem,4vw,2.6rem)/1.2 'Bricolage Grotesque',sans-serif;max-width:22ch;margin:0 auto 1.2rem}
+.end p{color:var(--muted);max-width:50ch;margin:0 auto}
+footer{padding:2.5rem 1rem;text-align:center;color:var(--muted);border-top:1px solid var(--line);font-size:.92rem}
+
+.hero p,.lead,.era p,.chip span,.end p{text-align:justify;text-justify:inter-word;hyphens:auto;-webkit-hyphens:auto}
+.era p,.lead{max-width:62ch}
+@media(max-width:760px){.hero .wrap{grid-template-columns:1fr}.grid{margin:0}.cap{text-align:left}.era{grid-template-columns:1fr;gap:.2rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.era{opacity:1;transform:none}.tl::before{transform:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Seventy years of keeping data in order<span>Databases, then and now</span></h1>
+      <p>How we went from magnetic tapes to the cloud, and when you can skip the database altogether.</p>
+      <a class="btn" href="#history">Start the timeline</a>
+    </div>
+    <div>
+      <div class="grid" id="grid" aria-hidden="true"></div>
+      <p class="cap">Rows and columns: the idea that changed everything in the 1970s.</p>
+    </div>
+  </div>
+</header>
+
+<section id="history">
+  <div class="wrap">
+    <h2>A brief history of database applications</h2>
+    <p class="lead">It began in the 1950s, when data lived in files and on magnetic tapes. As the amount of data grew, better ways to store and manage it followed.</p>
+    <div class="tl" id="tl">
+      <div class="era"><div class="yr">1950s</div><div><h3>File processing system</h3><p>Data was stored in separate files and magnetic tapes, which made data management difficult.</p></div></div>
+      <div class="era"><div class="yr">1960s</div><div><h3>Hierarchical and network databases</h3><p>Data was organized in tree-like structures or linked records to improve access and management.</p></div></div>
+      <div class="era big"><div class="yr">1970s</div><div><h3>Relational databases</h3><p>E. F. Codd introduced the relational model, which organizes data into tables with rows and columns.</p></div></div>
+      <div class="era"><div class="yr">1980s</div><div><h3>Commercial database systems</h3><p>Relational databases became widely used in businesses, banks, and educational institutions.</p></div></div>
+      <div class="era"><div class="yr">1990s</div><div><h3>Internet and web databases</h3><p>Databases began supporting websites, online shopping, and web-based applications.</p></div></div>
+      <div class="era"><div class="yr">2000s</div><div><h3>Distributed and NoSQL databases</h3><p>Databases evolved to handle large amounts of data across multiple systems and to support flexible data formats.</p></div></div>
+      <div class="era"><div class="yr">2010s–now</div><div><h3>Cloud and AI-based databases</h3><p>Cloud databases, big data technologies, and AI-powered systems made data storage, processing, and analysis faster and more flexible.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="when" id="when">
+  <div class="wrap">
+    <h2>When not to use a database</h2>
+    <p class="lead">A database is not always necessary for every application. It may be avoided in the following situations:</p>
+    <div class="chips" id="chips">
+      <div class="chip"><b>Small amount of data</b><span>When only a few records need to be stored.</span></div>
+      <div class="chip"><b>Temporary data</b><span>When information is used only for a short time and does not need permanent storage.</span></div>
+      <div class="chip"><b>Simple applications</b><span>Applications like calculators do not require a database.</span></div>
+      <div class="chip"><b>High cost</b><span>When the cost of setting up and maintaining a database is not justified.</span></div>
+      <div class="chip"><b>No data management needs</b><span>When an application does not need to store, update, or retrieve information.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="end">
+  <div class="wrap">
+    <h2>Conclusion</h2>
+    <blockquote>Use a database when it gives real benefits.</blockquote>
+    <p>For simple applications with minimal data, files or spreadsheets may be sufficient.</p>
+  </div>
+</section>
+
+<footer>Created by a Master’s student · A short study of database applications</footer>
+
+<script>
+(function(){
+  var g=document.getElementById('grid');
+  for(var i=0;i<64;i++){var c=document.createElement('i');c.style.animationDelay=((i%8)*.18+Math.floor(i/8)*.18)+'s';g.appendChild(c);}
+  var eras=document.querySelectorAll('.era'),tl=document.getElementById('tl');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.25});
+    eras.forEach(function(e){io.observe(e)});
+  }else{eras.forEach(function(e){e.classList.add('in')})}
+  function prog(){var r=tl.getBoundingClientRect(),h=window.innerHeight;var p=Math.min(1,Math.max(0,(h*.7-r.top)/r.height));tl.style.setProperty('--p',p)}
+  window.addEventListener('scroll',prog,{passive:true});prog();
+})();
+</script>
+</body>
+</html>
